@@ -1,7 +1,7 @@
 ﻿RPGCharacter rpgCharacter = new ();
 
-rpgCharacter.Stats.Resistances.Fire = 5;
-rpgCharacter.Stats.MaxRange = 5;
+// rpgCharacter.Stats.Resistances.Fire = 5;
+// rpgCharacter.Stats.MaxRange = 5;
 rpgCharacter.MutableStats.Health = 100;
 
 rpgCharacter.ApplyStatusEffect(StatusEffectCode.Blinded, 1, 3);
@@ -34,10 +34,10 @@ void PrintStats(int roundNumber)
     Console.WriteLine($"Round {roundNumber}");
     Console.WriteLine("-----------------------------");
     Console.WriteLine($"Current Health = {rpgCharacter.MutableStats.Health}");
-    Console.WriteLine($"Real MaxRange = {rpgCharacter.Stats.MaxRange}");
+    // Console.WriteLine($"Real MaxRange = {rpgCharacter.Stats.MaxRange}");
     Console.WriteLine($"Buffed MaxRange = {newStats.MaxRange}");
 
-    Console.WriteLine($"Real FireResist = {rpgCharacter.Stats.Resistances.Fire}");
+    // Console.WriteLine($"Real FireResist = {rpgCharacter.Stats.Resistances.Fire}");
     Console.WriteLine($"Buffed FireResist = {newStats.Resistances.Fire}");
 
     foreach (var effect in rpgCharacter.StatusEffects)

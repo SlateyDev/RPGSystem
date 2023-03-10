@@ -6,7 +6,7 @@ public class RPGCharacter
     // public CharacterGear Gear[];
 
     public CharacterMutableStats MutableStats = new();
-    public CharacterCalculatedStats Stats = new();
+    // public CharacterCalculatedStats Stats = new();
     public List<StatusEffect> StatusEffects = new();
 
     ///TODO:
@@ -15,9 +15,35 @@ public class RPGCharacter
 
     public RPGCharacter()
     {
+        Attributes.Level = 1;
+        Attributes.Might = 8;
+        Attributes.Vitality = 8;
+        Attributes.Intellect = 8;
+        Attributes.Dexterity = 8;
+        Attributes.Reflex = 8;
+
+        // Stats = AttributesToStats(Attributes);
         // Just some default values since CalculatedStats are not yet calculated.
-        Stats.HealthMax = 100;
     }
+
+    static CharacterCalculatedStats AttributesToStats(CharacterAttributes attributes /*, CharacterGear[] gear*/)
+    {
+        var stats = new CharacterCalculatedStats();
+        stats.Resistances.Fire = attributes.Intellect;
+        stats.Resistances.Cold = attributes.Intellect;
+        stats.Resistances.Lightning = attributes.Intellect;
+        stats.Resistances.Physical = attributes.Dexterity;
+
+        stats.CritChance = attributes.Dexterity * 0.5f;
+        stats.CritPower = attributes.Dexterity * 1.5f;
+        stats.MaxMove = 10 + Int32.Min(Int32.Max(attributes.Dexterity / 20, 0), 5);
+        stats.MaxRange = 50; 
+
+        stats.AttackPower = (int)(attributes.Might / 100.0f);
+        stats.HealthMax = (int)((45 + 15 * attributes.Level + 5 * attributes.Vitality) * (1 + (attributes.Vitality - 8) / 100.0f));
+        stats.ManaMax = (int)((45 + 15 * attributes.Level + 5 * attributes.Intellect) * (1 + (attributes.Intellect - 8) / 100.0f));
+        return stats;
+    } 
     
     public void ApplyStatusEffect(StatusEffectCode code, int numberOfStacks, int numberOfRounds)
     {
@@ -42,7 +68,7 @@ public class RPGCharacter
 
     public CharacterCalculatedStats GetBuffedStats()
     {
-        return StatusEffects.ToList().Aggregate(Stats, (current, buff) => buff.ApplyToStats(current, buff.StacksApplied));
+        return StatusEffects.ToList().Aggregate(AttributesToStats(Attributes), (current, buff) => buff.ApplyToStats(current, buff.StacksApplied));
     }
 
     public void RoundStart()

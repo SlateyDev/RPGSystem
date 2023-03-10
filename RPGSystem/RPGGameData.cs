@@ -37,6 +37,27 @@
                     return mutableStats;
                 },
         },
+        new()
+        {
+            Code = StatusEffectCode.Burning,
+            Name = "Bleeding",
+            IconId = 2,
+            IsBad = true,
+            StacksMax = 5,
+            ApplyToStats =
+                (stats, stacks) =>
+                {
+                    stats.Resistances.Physical -= 1 * stacks;
+                    return stats;
+                },
+            ApplyEffect =
+                (calculatedStats, mutableStats, stacks) =>
+                {
+                    mutableStats.Health -= 5 * stacks;
+                    mutableStats.Health -= (int)(5 * stacks * mutableStats.MovementMade);
+                    return mutableStats;
+                },
+        },
     };
 }
 

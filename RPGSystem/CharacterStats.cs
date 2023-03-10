@@ -22,53 +22,43 @@ public struct CharacterMutableStats
 
 public struct CharacterCalculatedStats
 {
-    // Calculatable values
+    // Mostly from gear
     public int Armour;
     public int SpellArmour;   // for non-magic, could use mental fortitude?
 
+    //might
+    public int AttackPower;     // gear is also a major contributor
+    
+    //vitality
     public int HealthMax;
     public int HealthRegen;
 
+    //intellect
     //instead of mana, could use focus, for non-magic games
     public int ManaMax;
     public int ManaRegen;
     
-    public int AttackPower;
+    //dexterity
     public float CritChance;
-    public int CritPower;
+    public float CritPower;
+    
+    //reflex
+    public float DodgeChance;
+    public float DodgeCounterChance;
+    public float CounterAttackDamage;
+    public int DodgeCounterAttackLimit;
     
     //These are the only resistances currently in Stolen Realm. I thought I could just use the same ones here for now.
     public Resistances Resistances;
     public StatusEffectCode[] Immunities = Array.Empty<StatusEffectCode>();
 
-    public int MaxRange;               // reduced by blinded
+    public int MaxRange;               // reduced by blinded (this overrides to reduce attack range which is based on the skill being used)
     public int MaxMove;                // reduced by immobilized, stunned
     public int RoundActionPoints;      // reduced by disabled, stunned
     public int MovementCost;           // increased by crippled, encumbered;
-
     public int StealthAmount;          // increased by stealth
 
     public CharacterCalculatedStats()
     {
-        // Health = 0;
-        // Mana = 0;
-        // MoveRemaining = 0;
-        // ActionPointsRemaining = 0;
-        // RoundsWithoutMoving = 0;
-        Armour = 0;
-        SpellArmour = 0;
-        HealthMax = 0;
-        HealthRegen = 0;
-        ManaMax = 0;
-        ManaRegen = 0;
-        AttackPower = 0;
-        CritChance = 0;
-        CritPower = 0;
-        Resistances = default;
-        MaxRange = 0;
-        MaxMove = 0;
-        RoundActionPoints = 0;
-        MovementCost = 0;
-        StealthAmount = 0;
     }
 }
