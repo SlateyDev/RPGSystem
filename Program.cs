@@ -1,5 +1,10 @@
 ﻿RPGCharacter rpgCharacter = new ();
 
+rpgCharacter.HealthChange += (by, health) =>
+{
+    Console.WriteLine($"Health changed by: {by}, new health is {health}");
+};
+
 // rpgCharacter.Stats.Resistances.Fire = 5;
 // rpgCharacter.Stats.MaxRange = 5;
 rpgCharacter.MutableStats.Health = 100;

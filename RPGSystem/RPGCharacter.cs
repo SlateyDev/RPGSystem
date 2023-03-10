@@ -1,13 +1,18 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 public class RPGCharacter
 {
+    public event HealthChangeHandler HealthChange;
+
     public CharacterAttributes Attributes;
     // public CharacterGear Gear[];
 
     public CharacterMutableStats MutableStats = new();
     // public CharacterCalculatedStats Stats = new();
     public List<StatusEffect> StatusEffects = new();
+    
+    public delegate void HealthChangeHandler(int changeBy, int newHealth);
 
     ///TODO:
     /// Need gear.
@@ -47,6 +52,7 @@ public class RPGCharacter
     
     public void ApplyStatusEffect(StatusEffectCode code, int numberOfStacks, int numberOfRounds)
     {
+        Console.WriteLine("Applying Status Effect");
         var buffedStats = GetBuffedStats();
 
         // Ignore if character is immune
@@ -68,6 +74,7 @@ public class RPGCharacter
 
     public void DoMovement(float movementAmount)
     {
+        Console.WriteLine("Performed movement");
         MutableStats.MovementMade += movementAmount;
 
         var calculatedStats = GetBuffedStats();
@@ -80,9 +87,21 @@ public class RPGCharacter
                 newStats = effect.MovementEffect(calculatedStats, newStats, effect.StacksApplied);
             }
         }
+        RaiseChanges(MutableStats, newStats);
         MutableStats = newStats;
 
         MutableStats.MovementAccountedFor = MutableStats.MovementMade;
+    }
+
+    private void RaiseChanges(CharacterMutableStats oldStats, CharacterMutableStats newStats)
+    {
+        if (newStats.Health != oldStats.Health)
+        {
+            if (HealthChange != null)
+            {
+                HealthChange.Invoke(newStats.Health - oldStats.Health, newStats.Health);
+            }
+        }
     }
 
     public CharacterCalculatedStats GetBuffedStats()
@@ -92,6 +111,7 @@ public class RPGCharacter
 
     public void RoundStart()
     {
+        Console.WriteLine("Doing Round Start");
         var calculatedStats = GetBuffedStats();
         MutableStats.Health = Math.Min(calculatedStats.HealthMax, MutableStats.Health + calculatedStats.HealthRegen);
         MutableStats.Mana = Math.Min(calculatedStats.ManaMax, MutableStats.Mana + calculatedStats.ManaRegen);
@@ -109,12 +129,13 @@ public class RPGCharacter
                 newStats = effect.ApplyEffect(calculatedStats, newStats, effect.StacksApplied);
             }
         }
-
+        RaiseChanges(MutableStats, newStats);
         MutableStats = newStats;
     }
 
     public void RoundEnd()
     {
+        Console.WriteLine("Doing Round End");
         var statusSpan = CollectionsMarshal.AsSpan(StatusEffects);
 
         for (var effectIndex = 0; effectIndex < statusSpan.Length; effectIndex++)
