@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-public interface IRPGCharacter
+﻿public interface IRPGCharacter
 {
     CharacterAttributes Attributes { get; }
     CharacterCalculatedStats Stats { get; }
