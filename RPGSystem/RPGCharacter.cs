@@ -66,6 +66,25 @@ public class RPGCharacter
         statusSpan[buffIndex].RoundsRemaining = Math.Max(StatusEffects[buffIndex].RoundsRemaining, numberOfRounds);
     }
 
+    public void DoMovement(float movementAmount)
+    {
+        MutableStats.MovementMade += movementAmount;
+
+        var calculatedStats = GetBuffedStats();
+
+        var newStats = MutableStats;
+        foreach (var effect in StatusEffects)
+        {
+            if (effect.MovementEffect != null)
+            {
+                newStats = effect.MovementEffect(calculatedStats, newStats, effect.StacksApplied);
+            }
+        }
+        MutableStats = newStats;
+
+        MutableStats.MovementAccountedFor = MutableStats.MovementMade;
+    }
+
     public CharacterCalculatedStats GetBuffedStats()
     {
         return StatusEffects.ToList().Aggregate(AttributesToStats(Attributes), (current, buff) => buff.ApplyToStats(current, buff.StacksApplied));

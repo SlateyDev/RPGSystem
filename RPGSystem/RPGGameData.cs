@@ -39,7 +39,7 @@
         },
         new()
         {
-            Code = StatusEffectCode.Burning,
+            Code = StatusEffectCode.Bleeding,
             Name = "Bleeding",
             IconId = 2,
             IsBad = true,
@@ -54,7 +54,12 @@
                 (calculatedStats, mutableStats, stacks) =>
                 {
                     mutableStats.Health -= 5 * stacks;
-                    mutableStats.Health -= (int)(5 * stacks * mutableStats.MovementMade);
+                    return mutableStats;
+                },
+            MovementEffect =
+                (calculatedStats, mutableStats, stacks) =>
+                {
+                    mutableStats.Health -= (int)(5 * stacks * mutableStats.MovementMade) - (int)(5 * stacks * mutableStats.MovementAccountedFor);
                     return mutableStats;
                 },
         },
@@ -65,10 +70,12 @@ public enum StatusEffectCode
 {
     Blinded,
     Burning,
+    Bleeding,
 }
 
 public delegate CharacterCalculatedStats ApplyToStatsHandler(CharacterCalculatedStats lastStats, int stacks);
 public delegate CharacterMutableStats ApplyEffectHandler(CharacterCalculatedStats calculatedStats, CharacterMutableStats lastStats, int stacks);
+public delegate CharacterMutableStats MovementEffectHandler(CharacterCalculatedStats calculatedStats, CharacterMutableStats lastStats, int stacks);
 
 public struct StatusEffect
 {
@@ -82,6 +89,7 @@ public struct StatusEffect
     public int StacksApplied;
     public ApplyToStatsHandler ApplyToStats;
     public ApplyEffectHandler? ApplyEffect;
+    public MovementEffectHandler? MovementEffect;
 }
 
 public enum SkillCode

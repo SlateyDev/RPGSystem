@@ -27,6 +27,24 @@ rpgCharacter.RoundTick();
 
 PrintStats(4);
 
+rpgCharacter.ApplyStatusEffect(StatusEffectCode.Bleeding, 2, 2);
+
+rpgCharacter.RoundTick();
+
+PrintStats(5);
+
+rpgCharacter.DoMovement(2.0f);
+
+PrintStats(5);
+
+rpgCharacter.DoMovement(1.5f);
+
+PrintStats(5);
+
+rpgCharacter.RoundTick();
+
+PrintStats(6);
+
 void PrintStats(int roundNumber)
 {
     var newStats = rpgCharacter.GetBuffedStats();
