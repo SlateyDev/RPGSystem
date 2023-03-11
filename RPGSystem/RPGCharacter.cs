@@ -1,19 +1,22 @@
-﻿using System.ComponentModel;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+
+public delegate void HealthChangeHandler(int changeBy, int newHealth);
+public delegate void StatusEffectAppliedHandler(StatusEffectCode oode);
+public delegate void StatusEffectDroppedHandler(StatusEffectCode code);
 
 public class RPGCharacter
 {
-    public event HealthChangeHandler HealthChange;
+    public event HealthChangeHandler? HealthChange;
+    public event StatusEffectAppliedHandler? StatusEffectApplied;
+    public event StatusEffectDroppedHandler? StatusEffectDropped;
 
     public CharacterAttributes Attributes;
     // public CharacterGear Gear[];
 
     public CharacterMutableStats MutableStats = new();
     // public CharacterCalculatedStats Stats = new();
-    public List<StatusEffect> StatusEffects = new();
+    public readonly List<StatusEffect> StatusEffects = new();
     
-    public delegate void HealthChangeHandler(int changeBy, int newHealth);
-
     ///TODO:
     /// Need gear.
     /// Need function to calculate stats based on attributes and gear.
@@ -64,6 +67,8 @@ public class RPGCharacter
             var buff = RPGGameData.StatusEffects.First(effect => effect.Code == code);
             StatusEffects.Add(buff);
             buffIndex = StatusEffects.Count - 1;
+
+            StatusEffectApplied?.Invoke(code);
         }
         
         var statusSpan = CollectionsMarshal.AsSpan(StatusEffects);
@@ -79,14 +84,7 @@ public class RPGCharacter
 
         var calculatedStats = GetBuffedStats();
 
-        var newStats = MutableStats;
-        foreach (var effect in StatusEffects)
-        {
-            if (effect.MovementEffect != null)
-            {
-                newStats = effect.MovementEffect(calculatedStats, newStats, effect.StacksApplied);
-            }
-        }
+        var newStats = StatusEffects.Where(effect => effect.MovementEffect != null).Aggregate(MutableStats, (current, effect) => effect.MovementEffect(calculatedStats, current, effect.StacksApplied));
         RaiseChanges(MutableStats, newStats);
         MutableStats = newStats;
 
@@ -97,10 +95,7 @@ public class RPGCharacter
     {
         if (newStats.Health != oldStats.Health)
         {
-            if (HealthChange != null)
-            {
-                HealthChange.Invoke(newStats.Health - oldStats.Health, newStats.Health);
-            }
+            HealthChange?.Invoke(newStats.Health - oldStats.Health, newStats.Health);
         }
     }
 
@@ -121,14 +116,7 @@ public class RPGCharacter
         }
         MutableStats.ActionPointsRemaining = calculatedStats.RoundActionPoints;
 
-        var newStats = MutableStats;
-        foreach (var effect in StatusEffects)
-        {
-            if (effect.ApplyEffect != null)
-            {
-                newStats = effect.ApplyEffect(calculatedStats, newStats, effect.StacksApplied);
-            }
-        }
+        var newStats = StatusEffects.Where(effect => effect.ApplyEffect != null).Aggregate(MutableStats, (current, effect) => effect.ApplyEffect(calculatedStats, current, effect.StacksApplied));
         RaiseChanges(MutableStats, newStats);
         MutableStats = newStats;
     }
@@ -146,6 +134,7 @@ public class RPGCharacter
         foreach (var buff in StatusEffects.Where(effect => effect.StacksApplied == 0 || effect.RoundsRemaining == 0).ToList())
         {
             StatusEffects.Remove(buff);
+            StatusEffectDropped?.Invoke(buff.Code);
         }
     }
     

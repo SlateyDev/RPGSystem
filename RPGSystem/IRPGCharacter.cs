@@ -4,8 +4,11 @@
     CharacterCalculatedStats Stats { get; }
     List<StatusEffect> StatusEffects { get; }
 
-    void DoRoundEffects();
     // void TakeDamage(DamageInfo);
+ 
+    void RoundStart();
     CharacterCalculatedStats GetBuffedStats();
-    void ClearExpiredBuffs();
+    void ApplyStatusEffect(StatusEffectCode code, int numberOfStacks, int numberOfRounds);
+    void DoMovement(float movementAmount);
+    void RoundEnd();
 }
