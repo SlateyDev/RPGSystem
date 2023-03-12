@@ -64,6 +64,62 @@
                 },
         },
     };
+
+    public static readonly Skill[] Skills =
+    {
+        new()
+        {
+            Name = "Pistol Whip",
+        },
+        new()
+        {
+            Name = "Blind"
+        },
+        new()
+        {
+            Name = "Focus Shot"
+        },
+        new()
+        {
+            Name = "Distract"
+        },
+        new()
+        {
+            Name = "Gouge"
+        },
+        new()
+        {
+            Name = "Rupture"
+        },
+        new()
+        {
+            Name = "Disarm"
+        },
+        new()
+        {
+            Name = "Suppressive Fire"
+        },
+        new()
+        {
+            Name = "Sneak Attack"
+        },
+        new()
+        {
+            Name = "Aimed Shot"
+        },
+        new()
+        {
+            Name = "Spray and Pray"
+        },
+        new()
+        {
+            Name = "Ricochet Shot"
+        },
+        new()
+        {
+            Name = "Firing Range"
+        },
+    };
 }
 
 public enum StatusEffectCode
@@ -71,6 +127,18 @@ public enum StatusEffectCode
     Blinded,
     Burning,
     Bleeding,
+    Poisoned,
+    Chilled,
+    Frozen,
+    InnerWarmth,
+    Immobilized,
+    Disabled,
+    Stunned,
+    Crippled,
+    Marked,
+    Stealth,
+    Salvation,  //Increased max health
+    PatientHunter,
 }
 
 public delegate CharacterCalculatedStats ApplyToStatsHandler(CharacterCalculatedStats lastStats, int stacks);
@@ -102,12 +170,15 @@ public enum SkillCode
     Level4,
 }
 
-public delegate void PerformSkillHandler(RPGCharacter source, RPGCharacter destination);
+public delegate bool IsActiveSkillHandler(IRPGCharacter source);
+public delegate bool CanPerformSkillHandler(IRPGCharacter source, IRPGCharacter destination);
+public delegate void PerformSkillHandler(IRPGCharacter source, IRPGCharacter destination);
 
 public struct Skill
 {
     public SkillCode Code;
     public string Name;
+    public string Description;
     public int IconId;
     public int ActionPointCost;     // Cost to perform skill
     public int CooldownTime;        // Rounds before it can be done again
@@ -116,5 +187,9 @@ public struct Skill
 
     public int CooldownRemaining;   // How much longer you need to wait before you can perform the skill again
     public bool Unlocked;           // Have you unlocked the skill yet
-    public PerformSkillHandler PerformSkill;
+    
+    // functions
+    public IsActiveSkillHandler IsActive;   // May be inactive because you are not stealthed
+    public CanPerformSkillHandler CanUse;   // Based on position of character, your position and which way character might be facing (if you have to be behind them for instance), also check LOS
+    public PerformSkillHandler Use;         // Will most likely call CanUse first and stop use if Can't Use.
 }
